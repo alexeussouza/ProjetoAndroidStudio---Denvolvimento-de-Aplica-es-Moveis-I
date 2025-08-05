@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Robô Marciano</string>
+    <string name="texto">Olá, eu sou o Robô Marciano\nVocê pode me perguntar qualquer coisa.\nDigite a sua mensagem abaixo:</string>
+</resources>
