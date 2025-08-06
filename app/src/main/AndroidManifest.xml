@@ -21,6 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RespostaActivity"
+            android:exported="false" />
+        <!-- Como é uma tela secundária, não precisa ser exportada -->
+
     </application>
 
 </manifest>

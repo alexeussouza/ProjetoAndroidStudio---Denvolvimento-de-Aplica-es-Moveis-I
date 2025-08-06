@@ -1,5 +1,6 @@
 package com.example.robmarciano;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -32,45 +33,48 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void respostasMarciano(View view){
-
+    public void respostasMarciano(View view) {
         EditText frase = findViewById(R.id.txt_pergunta);
+        String comando = frase.getText().toString().toLowerCase(Locale.ROOT);
+
+        // Buffer pra guardar a resposta
+        final String[] respostaFinal = {""};
+
+        Mensageiro mensageiro = texto -> respostaFinal[0] = texto;
 
         Premium acaoHora = () -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Executando ação premium... A hora atual é: ");
-            sb.append(LocalDateTime.now());
-            frase.setText(sb.toString());
+            String texto = "Executando ação premium... A hora atual é: " + LocalDateTime.now();
+            respostaFinal[0] = texto;
         };
-
-        Mensageiro mensageiro = frase::setText; // exibe texto diretamente no EditText
 
         RoboPremium marciano = new RoboPremium(acaoHora, mensageiro);
         RoboMatematico calculista = new RoboMatematico(mensageiro);
 
-        if (frase != null && !frase.getText().toString().isEmpty()) {
-            String comando = frase.getText().toString().toLowerCase(Locale.ROOT);
+        if (comando.isEmpty()) {
+            respostaFinal[0] = "Você precisa digitar uma frase!";
+        } else if (comando.startsWith("some") || comando.startsWith("subtraia") ||
+                comando.startsWith("multiplique") || comando.startsWith("divida")) {
 
-            if (comando.startsWith("some") ||
-                    comando.startsWith("subtraia") ||
-                    comando.startsWith("multiplique") ||
-                    comando.startsWith("divida")) {
-
-                String[] partes = comando.split(" ");
-                if (partes.length == 3) {
-                    try {
-                        double x = Double.parseDouble(partes[1]);
-                        double y = Double.parseDouble(partes[2]);
-                        calculista.calcular(partes[0], x, y);
-                    } catch (NumberFormatException e) {
-                        frase.setText("❌ Números inválidos.");
-                    }
-                } else {
-                    frase.setText("⚠️ Formato esperado: operação número número");
+            String[] partes = comando.split(" ");
+            if (partes.length == 3) {
+                try {
+                    double x = Double.parseDouble(partes[1]);
+                    double y = Double.parseDouble(partes[2]);
+                    calculista.calcular(partes[0], x, y);
+                } catch (NumberFormatException e) {
+                    respostaFinal[0] = "❌ Números inválidos.";
                 }
             } else {
-                marciano.responder(comando); // resposta exibida internamente via Mensageiro
+                respostaFinal[0] = "⚠️ Formato esperado: operação número número";
             }
+        } else {
+            marciano.responder(comando);
         }
+
+        // Envia a resposta para a nova activity
+        Intent intent = new Intent(this, RespostaActivity.class);
+        intent.putExtra("resposta", respostaFinal[0]);
+        startActivity(intent);
     }
+
 }
